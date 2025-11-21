@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Candidate Management System",
-  description: "Frontend application for managing candidates",
+  title: "Task Management System",
+  description: "Modern task management system with real-time collaboration",
 };
 
 export default function RootLayout({

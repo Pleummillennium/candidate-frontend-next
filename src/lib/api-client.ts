@@ -1,9 +1,10 @@
-// API Client configuration and utilities
+// API Client configuration and utilities with JWT authentication
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string | number | boolean | undefined>;
+  requireAuth?: boolean;
 }
 
 class ApiClient {
@@ -11,6 +12,11 @@ class ApiClient {
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl;
+  }
+
+  private getAuthToken(): string | null {
+    if (typeof window === 'undefined') return null;
+    return localStorage.getItem('auth_token');
   }
 
   private buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
@@ -27,6 +33,23 @@ class ApiClient {
     return url.toString();
   }
 
+  private getHeaders(options?: RequestOptions): HeadersInit {
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+      ...options?.headers,
+    };
+
+    // Add Authorization header if token exists (except for public routes)
+    if (options?.requireAuth !== false) {
+      const token = this.getAuthToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    return headers;
+  }
+
   private async handleResponse<T>(response: Response): Promise<T> {
     const contentType = response.headers.get('content-type');
 
@@ -38,6 +61,12 @@ class ApiClient {
         errorMessage = errorData.error || errorData.message || errorMessage;
       } else {
         errorMessage = await response.text();
+      }
+
+      // Handle 401 Unauthorized - clear token
+      if (response.status === 401 && typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
       }
 
       throw new Error(errorMessage);
@@ -55,10 +84,7 @@ class ApiClient {
 
     const response = await fetch(url, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: this.getHeaders(options),
       ...options,
     });
 
@@ -70,10 +96,7 @@ class ApiClient {
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: this.getHeaders(options),
       body: JSON.stringify(data),
       ...options,
     });
@@ -86,10 +109,7 @@ class ApiClient {
 
     const response = await fetch(url, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: this.getHeaders(options),
       body: JSON.stringify(data),
       ...options,
     });
@@ -102,10 +122,7 @@ class ApiClient {
 
     const response = await fetch(url, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers,
-      },
+      headers: this.getHeaders(options),
       ...options,
     });
 
