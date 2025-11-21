@@ -1,41 +1,34 @@
-# Task Management System - Frontend
+# Candidate Management System - Frontend
 
-Frontend application for the Task Management System built with Next.js, TypeScript, and Tailwind CSS.
+Frontend application for tracking and managing interview candidates built with Next.js, TypeScript, and Tailwind CSS.
+
+## Overview
+
+A modern web application to help HR teams and hiring managers track candidates through the interview process. Manage candidate information, interview schedules, status tracking, and interview notes all in one place.
+
+## Features
+
+- **Candidate Tracking** - Add and manage candidate information
+- **Status Management** - Track candidates through stages (To Do, In Progress, Done)
+- **Interview Notes** - Add comments and feedback for each candidate
+- **Authentication** - Secure JWT-based login and registration
+- **Archive System** - Archive completed candidates
+- **Responsive Design** - Works on desktop and mobile devices
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 with App Router
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS
+- **Backend:** Go + Gin + PostgreSQL
 - **Architecture:** Clean Architecture pattern
-- **Authentication:** JWT-based authentication
-
-## Features
-
-- JWT-based authentication (login/register)
-- Task management (CRUD operations)
-- Task status tracking (To Do, In Progress, Done)
-- Archive/Unarchive tasks
-- Real-time commenting on tasks
-- Change logs tracking
-- Clean Architecture folder structure
-- Type-safe API integration with Go backend
+- **Authentication:** JWT-based
 
 ## Prerequisites
 
 - Node.js 18+ or later
 - npm or yarn or pnpm
 - Backend API running on `http://localhost:8080`
-
-## Backend Repository
-
-This frontend connects to: [candidate-backend-api](https://github.com/Pleummillennium/candidate-backend-api)
-
-The backend is a Go-based Task Management API with:
-- PostgreSQL database
-- JWT authentication
-- Clean Architecture
-- RESTful endpoints
 
 ## Getting Started
 
@@ -60,14 +53,14 @@ cp .env.example .env.local
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
-5. Make sure the backend API is running on port 8080
+5. Make sure the backend API is running
 
 6. Run the development server:
 ```bash
 npm run dev
 ```
 
-7. Open [http://localhost:3000](http://localhost:3000) in your browser
+7. Open [http://localhost:3000](http://localhost:3000)
 
 ## Available Scripts
 
@@ -80,61 +73,63 @@ npm run dev
 ## Project Structure
 
 ```
-candidate-frontend-next/
-├── src/
-│   ├── app/              # Next.js App Router pages
-│   │   ├── layout.tsx    # Root layout
-│   │   ├── page.tsx      # Home page
-│   │   └── globals.css   # Global styles
-│   ├── components/       # React components
-│   │   ├── ui/          # Reusable UI components
-│   │   └── features/    # Feature-specific components
-│   ├── hooks/           # Custom React hooks
-│   │   ├── useAuth.ts   # Authentication hook
-│   │   ├── useTasks.ts  # Tasks list hook
-│   │   ├── useTask.ts   # Single task hook
-│   │   └── useComments.ts # Comments hook
-│   ├── lib/             # Core utilities and configurations
-│   │   └── api-client.ts # API client with JWT support
-│   ├── services/        # API service layer
-│   │   ├── auth.service.ts    # Authentication service
-│   │   ├── task.service.ts    # Task service
-│   │   └── comment.service.ts # Comment service
-│   ├── types/           # TypeScript type definitions
-│   │   ├── task.ts      # Task types
-│   │   ├── comment.ts   # Comment types
-│   │   ├── user.ts      # User/Auth types
-│   │   └── api.ts       # API response types
-│   ├── utils/           # Helper functions
-│   └── constants/       # Application constants
-├── public/              # Static assets
-└── ...config files
+src/
+├── app/
+│   ├── page.tsx                    # Homepage
+│   ├── candidates/
+│   │   ├── page.tsx                # Candidates list
+│   │   ├── new/page.tsx            # Add new candidate
+│   │   └── [id]/page.tsx           # Candidate detail
+│   └── auth/
+│       ├── login/page.tsx          # Login page
+│       └── register/page.tsx       # Registration page
+├── hooks/
+│   ├── useAuth.ts                  # Authentication hook
+│   ├── useTasks.ts                 # Candidates list hook
+│   ├── useTask.ts                  # Single candidate hook
+│   └── useComments.ts              # Comments hook
+├── services/
+│   ├── auth.service.ts             # Auth API calls
+│   ├── task.service.ts             # Candidate API calls
+│   └── comment.service.ts          # Comment API calls
+├── types/
+│   ├── task.ts                     # Candidate type definitions
+│   ├── comment.ts                  # Comment types
+│   ├── user.ts                     # User/Auth types
+│   └── api.ts                      # API response types
+└── lib/
+    └── api-client.ts               # HTTP client with JWT
+
 ```
 
-## API Integration
+## Pages
 
-The frontend connects to the Go backend API:
+### Home (/)
+- Landing page with feature overview
+- Links to candidates and login
 
-### Authentication (Public)
-- `POST /auth/register` - Register new user
-- `POST /auth/login` - Login user
+### Candidates List (/candidates)
+- View all candidates
+- Filter by status (To Do, In Progress, Done)
+- Quick actions (View, Archive, Delete)
 
-### Tasks (Protected - requires JWT)
-- `GET /api/tasks` - Get all tasks
-- `GET /api/tasks/archived` - Get archived tasks
-- `POST /api/tasks` - Create new task
-- `GET /api/tasks/:id` - Get task by ID
-- `PUT /api/tasks/:id` - Update task
-- `DELETE /api/tasks/:id` - Delete task
-- `POST /api/tasks/:id/archive` - Archive task
-- `POST /api/tasks/:id/unarchive` - Unarchive task
-- `GET /api/tasks/:id/logs` - Get task change logs
+### Add Candidate (/candidates/new)
+- Form to add new candidate
+- Fields: Name, Description, Status, Interview Date
 
-### Comments (Protected - requires JWT)
-- `GET /api/tasks/:id/comments` - Get comments for task
-- `POST /api/tasks/:id/comments` - Create comment
-- `PUT /api/comments/:id` - Update comment
-- `DELETE /api/comments/:id` - Delete comment
+### Candidate Detail (/candidates/[id])
+- View candidate details
+- Edit candidate information
+- Add interview notes and comments
+- Comment history
+
+### Login (/auth/login)
+- User authentication
+- JWT token management
+
+### Register (/auth/register)
+- New user registration
+- Account creation
 
 ## Environment Variables
 
@@ -142,56 +137,45 @@ The frontend connects to the Go backend API:
 |----------|-------------|---------|
 | `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:8080` |
 | `NEXT_PUBLIC_API_VERSION` | API version | `v1` |
-| `NEXT_PUBLIC_APP_NAME` | Application name | `Task Management System` |
+| `NEXT_PUBLIC_APP_NAME` | Application name | `Candidate Management System` |
 
-## Authentication Flow
+## Backend Repository
 
-1. User registers via `/auth/register`
-2. User logs in via `/auth/login` and receives JWT token
-3. Token is stored in localStorage
-4. All subsequent API calls include the token in Authorization header
-5. Token is automatically cleared on 401 responses
+This frontend connects to: [candidate-backend-api](https://github.com/Pleummillennium/candidate-backend-api)
 
-## Development
+## Deployment
 
-### Custom Hooks Usage
+### Deploy to Vercel
 
-```typescript
-// Authentication
-import { useAuth } from '@/hooks';
+1. Push your code to GitHub
+2. Import project in Vercel
+3. Configure environment variables
+4. Deploy!
 
-const { user, isAuthenticated, login, logout } = useAuth();
-
-// Tasks
-import { useTasks } from '@/hooks';
-
-const { tasks, loading, error, refetch } = useTasks();
-
-// Single Task
-import { useTask } from '@/hooks';
-
-const { task, loading, error } = useTask(taskId);
-
-// Comments
-import { useComments } from '@/hooks';
-
-const { comments, loading, error } = useComments(taskId);
+Or use Vercel CLI:
+```bash
+npm install -g vercel
+vercel
 ```
 
-### Service Layer Usage
+## API Integration
 
-```typescript
-import { taskService, authService, commentService } from '@/services';
+The system uses the Task Management API as the backend:
+- **Tasks** → **Candidates**
+- **Comments** → **Interview Notes**
+- **Status** → **Interview Stages**
 
-// Login
-await authService.login({ email, password });
-
-// Create task
-await taskService.create({ title, description, status });
-
-// Add comment
-await commentService.create(taskId, { content });
-```
+API Endpoints:
+- `POST /auth/register` - Create account
+- `POST /auth/login` - Login
+- `GET /api/tasks` - Get candidates
+- `POST /api/tasks` - Create candidate
+- `GET /api/tasks/:id` - Get candidate
+- `PUT /api/tasks/:id` - Update candidate
+- `DELETE /api/tasks/:id` - Delete candidate
+- `POST /api/tasks/:id/archive` - Archive candidate
+- `GET /api/tasks/:id/comments` - Get comments
+- `POST /api/tasks/:id/comments` - Add comment
 
 ## License
 
