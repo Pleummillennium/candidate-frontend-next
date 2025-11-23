@@ -4,6 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks';
+import {
+  Container,
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  TextField,
+  Button,
+  Alert,
+  Link as MuiLink,
+} from '@mui/material';
+import { PersonAdd } from '@mui/icons-material';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -47,110 +59,141 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 px-4">
-      <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-            Create Account
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Start managing your candidates today
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-xl p-8">
-          {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg mb-6">
-              {error}
-            </div>
-          )}
-
-          {success && (
-            <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded-lg mb-6">
-              Registration successful! Redirecting to login...
-            </div>
-          )}
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-              placeholder="John Doe"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-              placeholder="you@example.com"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              required
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              required
-              value={formData.confirmPassword}
-              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading || success}
-            className="w-full px-6 py-3 bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-semibold rounded-lg transition"
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        position: 'relative',
+        py: 4,
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(circle at 30% 30%, rgba(129, 140, 248, 0.15) 0%, transparent 50%), radial-gradient(circle at 70% 70%, rgba(192, 132, 252, 0.15) 0%, transparent 50%)',
+          pointerEvents: 'none',
+        },
+      }}
+    >
+      <Container maxWidth="sm" sx={{ position: 'relative', zIndex: 1 }}>
+        <Box textAlign="center" mb={4}>
+          <Typography
+            variant="h3"
+            fontWeight={700}
+            gutterBottom
+            sx={{
+              background: 'linear-gradient(135deg, #818cf8 0%, #c084fc 100%)',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
-            {loading ? 'Creating account...' : 'Create Account'}
-          </button>
+            Create Account
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Start managing your candidates today
+          </Typography>
+        </Box>
 
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 dark:text-gray-400">
-              Already have an account?{' '}
-              <Link href="/auth/login" className="text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium">
-                Sign In
-              </Link>
-            </p>
-          </div>
+        <Card elevation={8}>
+          <CardContent sx={{ p: 4 }}>
+            <Box component="form" onSubmit={handleSubmit}>
+              {error && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                  {error}
+                </Alert>
+              )}
 
-          <div className="mt-4 text-center">
-            <Link href="/" className="text-gray-500 hover:text-gray-700 dark:text-gray-400 text-sm">
-              ← Back to Home
-            </Link>
-          </div>
-        </form>
-      </div>
-    </div>
+              {success && (
+                <Alert severity="success" sx={{ mb: 3 }}>
+                  Registration successful! Redirecting to login...
+                </Alert>
+              )}
+
+              <TextField
+                fullWidth
+                label="Full Name"
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="John Doe"
+                sx={{ mb: 3 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="you@example.com"
+                sx={{ mb: 3 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
+                sx={{ mb: 3 }}
+              />
+
+              <TextField
+                fullWidth
+                label="Confirm Password"
+                type="password"
+                required
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                placeholder="••••••••"
+                sx={{ mb: 3 }}
+              />
+
+              <Button
+                fullWidth
+                type="submit"
+                variant="contained"
+                size="large"
+                disabled={loading || success}
+                startIcon={<PersonAdd />}
+                sx={{
+                  py: 1.5,
+                  mb: 2,
+                  background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                  fontWeight: 600,
+                }}
+              >
+                {loading ? 'Creating account...' : 'Create Account'}
+              </Button>
+
+              <Box textAlign="center">
+                <Typography variant="body2" color="text.secondary">
+                  Already have an account?{' '}
+                  <MuiLink component={Link} href="/auth/login" fontWeight={600}>
+                    Sign In
+                  </MuiLink>
+                </Typography>
+              </Box>
+
+              <Box textAlign="center" mt={2}>
+                <MuiLink component={Link} href="/" variant="body2" color="text.secondary">
+                  ← Back to Home
+                </MuiLink>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 }

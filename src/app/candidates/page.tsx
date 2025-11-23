@@ -1,24 +1,59 @@
 'use client';
 
-import { useTasks } from '@/hooks';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useTasks } from '@/hooks';
 import { taskService } from '@/services/task.service';
+import { authService } from '@/services/auth.service';
 import type { TaskStatus } from '@/types';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  CardActions,
+  Chip,
+  TextField,
+  InputAdornment,
+  IconButton,
+  CircularProgress,
+  Alert,
+  Fab,
+} from '@mui/material';
+import {
+  Add,
+  Search,
+  Edit,
+  Delete,
+  Archive,
+  CalendarToday,
+  Person,
+} from '@mui/icons-material';
 
 export default function CandidatesPage() {
   const router = useRouter();
   const { tasks: candidates, loading, error, refetch } = useTasks();
   const [filter, setFilter] = useState<'all' | TaskStatus>('all');
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredCandidates = filter === 'all'
-    ? candidates
-    : candidates.filter(c => c.status === filter);
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.replace('/auth/login');
+    }
+  }, [router]);
+
+  const filteredCandidates = candidates
+    .filter(c => filter === 'all' || c.status === filter)
+    .filter(c =>
+      c.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      c.description?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
   const handleDelete = async (id: number) => {
     if (!confirm('Are you sure you want to delete this candidate?')) return;
-
     try {
       await taskService.delete(id);
       refetch();
@@ -36,156 +71,201 @@ export default function CandidatesPage() {
     }
   };
 
+  const getStatusColor = (status: TaskStatus): 'warning' | 'info' | 'success' => {
+    return status === 'To Do' ? 'warning' : status === 'In Progress' ? 'info' : 'success';
+  };
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading candidates...</div>
-      </div>
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress size={60} />
+      </Box>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-              Candidates
-            </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
-              Manage your interview candidates
-            </p>
-          </div>
-          <Link
-            href="/candidates/new"
-            className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-lg shadow transition"
-          >
-            + Add Candidate
-          </Link>
-        </div>
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      {/* Header */}
+      <Box mb={4}>
+        <Typography variant="h3" fontWeight={700} gutterBottom>
+          Candidates
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Manage your interview candidates - {candidates.length} total
+        </Typography>
+      </Box>
 
-        {/* Filters */}
-        <div className="flex gap-2 mb-6">
-          <button
-            onClick={() => setFilter('all')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              filter === 'all'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            All ({candidates.length})
-          </button>
-          <button
-            onClick={() => setFilter('To Do')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              filter === 'To Do'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            To Do ({candidates.filter(c => c.status === 'To Do').length})
-          </button>
-          <button
-            onClick={() => setFilter('In Progress')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              filter === 'In Progress'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            In Progress ({candidates.filter(c => c.status === 'In Progress').length})
-          </button>
-          <button
-            onClick={() => setFilter('Done')}
-            className={`px-4 py-2 rounded-lg font-medium transition ${
-              filter === 'Done'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-            }`}
-          >
-            Done ({candidates.filter(c => c.status === 'Done').length})
-          </button>
-        </div>
+      {/* Search and Filters */}
+      <Box mb={4}>
+        <TextField
+          fullWidth
+          placeholder="Search candidates by name or description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+          sx={{ mb: 3, maxWidth: 600 }}
+        />
 
-        {/* Error Message */}
-        {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg mb-6">
-            {error}
-          </div>
-        )}
+        <Box display="flex" gap={2} flexWrap="wrap">
+          {[
+            { label: 'All', value: 'all', count: candidates.length },
+            { label: 'To Do', value: 'To Do', count: candidates.filter(c => c.status === 'To Do').length },
+            { label: 'In Progress', value: 'In Progress', count: candidates.filter(c => c.status === 'In Progress').length },
+            { label: 'Done', value: 'Done', count: candidates.filter(c => c.status === 'Done').length },
+          ].map(({ label, value, count }) => (
+            <Chip
+              key={value}
+              label={`${label} (${count})`}
+              onClick={() => setFilter(value as any)}
+              color={filter === value ? 'primary' : 'default'}
+              variant={filter === value ? 'filled' : 'outlined'}
+              sx={{
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                py: 2.5,
+                px: 1,
+              }}
+            />
+          ))}
+        </Box>
+      </Box>
 
-        {/* Candidates Grid */}
-        {filteredCandidates.length === 0 ? (
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
-            <p className="text-gray-500 dark:text-gray-400 text-lg">
-              No candidates found. Add your first candidate!
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCandidates.map((candidate) => (
-              <div
-                key={candidate.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow hover:shadow-lg transition p-6"
+      {/* Error */}
+      {error && (
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
+      )}
+
+      {/* Candidates Grid */}
+      {filteredCandidates.length === 0 ? (
+        <Card sx={{ textAlign: 'center', py: 8 }}>
+          <CardContent>
+            <Typography variant="h5" color="text.secondary" gutterBottom>
+              👔
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+              No candidates found
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              {searchTerm ? "Try adjusting your search" : "Start by adding your first candidate!"}
+            </Typography>
+            {!searchTerm && (
+              <Button
+                component={Link}
+                href="/candidates/new"
+                variant="contained"
+                startIcon={<Add />}
+                sx={{ mt: 2 }}
               >
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    {candidate.title}
-                  </h3>
-                  <StatusBadge status={candidate.status} />
-                </div>
+                Add First Candidate
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      ) : (
+        <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }} gap={3}>
+          {filteredCandidates.map((candidate) => (
+            <Box key={candidate.id}>
+              <Card
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  transition: 'all 0.3s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: 6,
+                  },
+                }}
+              >
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Box display="flex" justifyContent="space-between" alignItems="start" mb={2}>
+                    <Typography variant="h6" fontWeight={600} sx={{ flex: 1 }}>
+                      {candidate.title}
+                    </Typography>
+                    <Chip
+                      label={candidate.status}
+                      color={getStatusColor(candidate.status)}
+                      size="small"
+                      sx={{ fontWeight: 500 }}
+                    />
+                  </Box>
 
-                <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
-                  {candidate.description || 'No description'}
-                </p>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{
+                      mb: 2,
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    {candidate.description || 'No description'}
+                  </Typography>
 
-                {candidate.due_date && (
-                  <p className="text-sm text-gray-500 dark:text-gray-500 mb-4">
-                    Interview: {new Date(candidate.due_date).toLocaleDateString()}
-                  </p>
-                )}
+                  {candidate.due_date && (
+                    <Box display="flex" alignItems="center" gap={0.5} color="primary.main">
+                      <CalendarToday fontSize="small" />
+                      <Typography variant="caption">
+                        {new Date(candidate.due_date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })}
+                      </Typography>
+                    </Box>
+                  )}
+                </CardContent>
 
-                <div className="flex gap-2">
-                  <Link
+                <CardActions sx={{ px: 2, pb: 2 }}>
+                  <Button
+                    component={Link}
                     href={`/candidates/${candidate.id}`}
-                    className="flex-1 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-center rounded-lg transition"
+                    variant="contained"
+                    size="small"
+                    fullWidth
+                    sx={{
+                      background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    }}
                   >
-                    View
-                  </Link>
-                  <button
-                    onClick={() => handleArchive(candidate.id)}
-                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg transition"
-                  >
-                    Archive
-                  </button>
-                  <button
-                    onClick={() => handleDelete(candidate.id)}
-                    className="px-4 py-2 bg-red-100 hover:bg-red-200 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-red-700 dark:text-red-400 rounded-lg transition"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
+                    View Details
+                  </Button>
+                  <IconButton size="small" onClick={() => handleArchive(candidate.id)} color="default">
+                    <Archive fontSize="small" />
+                  </IconButton>
+                  <IconButton size="small" onClick={() => handleDelete(candidate.id)} color="error">
+                    <Delete fontSize="small" />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            </Box>
+          ))}
+        </Box>
+      )}
 
-function StatusBadge({ status }: { status: TaskStatus }) {
-  const colors = {
-    'To Do': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400',
-    'In Progress': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400',
-    'Done': 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-  };
-
-  return (
-    <span className={`px-3 py-1 rounded-full text-xs font-medium ${colors[status]}`}>
-      {status}
-    </span>
+      {/* Floating Action Button */}
+      <Fab
+        component={Link}
+        href="/candidates/new"
+        color="primary"
+        sx={{
+          position: 'fixed',
+          bottom: 24,
+          right: 24,
+          background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+        }}
+      >
+        <Add />
+      </Fab>
+    </Container>
   );
 }
