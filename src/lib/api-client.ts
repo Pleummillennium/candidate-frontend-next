@@ -34,9 +34,9 @@ class ApiClient {
   }
 
   private getHeaders(options?: RequestOptions): HeadersInit {
-    const headers: HeadersInit = {
+    const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(options?.headers as Record<string, string>),
     };
 
     // Add Authorization header if token exists (except for public routes)

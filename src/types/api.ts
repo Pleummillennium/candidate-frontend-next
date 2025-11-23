@@ -18,4 +18,5 @@ export interface PaginationParams {
   search?: string;
   sort_by?: string;
   order?: 'asc' | 'desc';
+  [key: string]: string | number | boolean | undefined;
 }
