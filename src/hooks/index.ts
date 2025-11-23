@@ -3,3 +3,4 @@ export * from './useAuth';
 export * from './useTasks';
 export * from './useTask';
 export * from './useComments';
+export * from './useTaskLogs';

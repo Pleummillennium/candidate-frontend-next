@@ -39,6 +39,9 @@ export default function CandidatesPage() {
   const [filter, setFilter] = useState<'all' | TaskStatus>('all');
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Get current user
+  const currentUser = authService.getCurrentUser();
+
   useEffect(() => {
     if (!authService.isAuthenticated()) {
       router.replace('/auth/login');
@@ -239,12 +242,16 @@ export default function CandidatesPage() {
                   >
                     View Details
                   </Button>
-                  <IconButton size="small" onClick={() => handleArchive(candidate.id)} color="default">
-                    <Archive fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" onClick={() => handleDelete(candidate.id)} color="error">
-                    <Delete fontSize="small" />
-                  </IconButton>
+                  {currentUser && candidate.creator_id === currentUser.id && (
+                    <>
+                      <IconButton size="small" onClick={() => handleArchive(candidate.id)} color="default">
+                        <Archive fontSize="small" />
+                      </IconButton>
+                      <IconButton size="small" onClick={() => handleDelete(candidate.id)} color="error">
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    </>
+                  )}
                 </CardActions>
               </Card>
             </Box>

@@ -6,7 +6,27 @@ import Link from 'next/link';
 import { taskService } from '@/services/task.service';
 import { authService } from '@/services/auth.service';
 import type { TaskStatus } from '@/types';
-import { Card } from '@/components';
+import {
+  Container,
+  Box,
+  Typography,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Alert,
+  Paper,
+} from '@mui/material';
+import {
+  ArrowBack,
+  Add,
+  Cancel,
+  TipsAndUpdates,
+} from '@mui/icons-material';
 
 export default function NewCandidatePage() {
   const router = useRouter();
@@ -16,7 +36,7 @@ export default function NewCandidatePage() {
   // Check authentication
   useEffect(() => {
     if (!authService.isAuthenticated()) {
-      router.push('/auth/login');
+      router.replace('/auth/login');
     }
   }, [router]);
 
@@ -52,158 +72,174 @@ export default function NewCandidatePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-8">
-      <div className="max-w-3xl mx-auto px-4">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+        py: 4,
+      }}
+    >
+      <Container maxWidth="md">
         {/* Header */}
-        <div className="mb-8">
-          <Link
-            href="/candidates"
-            className="inline-flex items-center text-indigo-600 hover:text-indigo-700 dark:text-indigo-400 font-medium transition mb-4"
+        <Box mb={4}>
+          <Button
+            onClick={() => router.push('/candidates')}
+            startIcon={<ArrowBack />}
+            sx={{ mb: 2, color: 'primary.main', fontWeight: 600 }}
           >
-            <span className="mr-2">←</span> Back to Candidates
-          </Link>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+            Back to Candidates
+          </Button>
+          <Typography variant="h3" fontWeight={700} gutterBottom>
             Add New Candidate
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
             Fill in the candidate information below to add them to your interview pipeline
-          </p>
-        </div>
+          </Typography>
+        </Box>
 
         {/* Form Card */}
-        <Card className="p-8">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {error && (
-              <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 text-red-800 dark:text-red-200 px-4 py-3 rounded-lg shadow-sm">
-                <div className="flex items-center">
-                  <span className="text-xl mr-3">⚠️</span>
-                  <p className="font-medium">{error}</p>
-                </div>
-              </div>
-            )}
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 4 }}>
+            <Box component="form" onSubmit={handleSubmit}>
+              {error && (
+                <Alert severity="error" sx={{ mb: 3 }}>
+                  {error}
+                </Alert>
+              )}
 
-            {/* Candidate Name */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Candidate Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition"
-                placeholder="e.g., John Doe"
-              />
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Full name of the candidate
-              </p>
-            </div>
+              <Box display="flex" flexDirection="column" gap={3}>
+                {/* Candidate Name */}
+                <TextField
+                  fullWidth
+                  label="Candidate Name"
+                  required
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., John Doe"
+                  helperText="Full name of the candidate"
+                />
 
-            {/* Description */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Description / Resume Summary
-              </label>
-              <textarea
-                rows={6}
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition"
-                placeholder="Add candidate details, resume highlights, experience, skills, or initial notes..."
-              />
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Background information, skills, experience, or any relevant notes
-              </p>
-            </div>
+                {/* Description */}
+                <TextField
+                  fullWidth
+                  label="Description / Resume Summary"
+                  multiline
+                  rows={6}
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Add candidate details, resume highlights, experience, skills, or initial notes..."
+                  helperText="Background information, skills, experience, or any relevant notes"
+                />
 
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                Initial Status *
-              </label>
-              <select
-                required
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as TaskStatus })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition"
-              >
-                <option value="To Do">⏳ To Do - Awaiting Interview</option>
-                <option value="In Progress">🔄 In Progress - Currently Interviewing</option>
-                <option value="Done">✅ Done - Interview Completed</option>
-              </select>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Current stage in the interview process
-              </p>
-            </div>
+                {/* Status */}
+                <FormControl fullWidth>
+                  <InputLabel>Initial Status</InputLabel>
+                  <Select
+                    value={formData.status}
+                    label="Initial Status"
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value as TaskStatus })}
+                  >
+                    <MenuItem value="To Do">⏳ To Do - Awaiting Interview</MenuItem>
+                    <MenuItem value="In Progress">🔄 In Progress - Currently Interviewing</MenuItem>
+                    <MenuItem value="Done">✅ Done - Interview Completed</MenuItem>
+                  </Select>
+                  <Typography variant="caption" color="text.secondary" sx={{ mt: 1, ml: 2 }}>
+                    Current stage in the interview process
+                  </Typography>
+                </FormControl>
 
-            {/* Interview Date */}
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                📅 Interview Date (Optional)
-              </label>
-              <input
-                type="datetime-local"
-                value={formData.due_date}
-                onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white transition"
-              />
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                Schedule the interview date and time
-              </p>
-            </div>
+                {/* Interview Date */}
+                <Box>
+                  <TextField
+                    fullWidth
+                    type="datetime-local"
+                    label="Interview Date (Optional)"
+                    value={formData.due_date}
+                    onChange={(e) => {
+                      setFormData({ ...formData, due_date: e.target.value });
+                      // Auto-close picker after selection
+                      setTimeout(() => {
+                        e.target.blur();
+                      }, 100);
+                    }}
+                    InputLabelProps={{ shrink: true }}
+                    helperText="Schedule the interview date and time"
+                    sx={{
+                      '& input[type="datetime-local"]::-webkit-calendar-picker-indicator': {
+                        position: 'absolute',
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        top: 0,
+                        width: '100%',
+                        height: '100%',
+                        opacity: 0,
+                        cursor: 'pointer',
+                      },
+                    }}
+                  />
+                </Box>
 
-            {/* Action Buttons */}
-            <div className="flex gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-              <button
-                type="submit"
-                disabled={loading}
-                className="flex-1 px-6 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-indigo-400 disabled:to-purple-400 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all disabled:cursor-not-allowed"
-              >
-                {loading ? (
-                  <span className="flex items-center justify-center">
-                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-white border-r-transparent mr-2"></div>
-                    Creating...
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center">
-                    <span className="text-xl mr-2">+</span>
-                    Create Candidate
-                  </span>
-                )}
-              </button>
-              <Link
-                href="/candidates"
-                className="px-6 py-4 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 font-semibold rounded-lg transition text-center"
-              >
-                Cancel
-              </Link>
-            </div>
-          </form>
+                {/* Action Buttons */}
+                <Box display="flex" gap={2} pt={3} borderTop="1px solid" borderColor="divider">
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    size="large"
+                    disabled={loading}
+                    startIcon={loading ? null : <Add />}
+                    sx={{
+                      py: 1.5,
+                      background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                      fontWeight: 600,
+                    }}
+                  >
+                    {loading ? 'Creating...' : 'Create Candidate'}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    size="large"
+                    startIcon={<Cancel />}
+                    onClick={() => router.push('/candidates')}
+                    sx={{ fontWeight: 600, py: 1.5 }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Box>
+            </Box>
+          </CardContent>
         </Card>
 
         {/* Quick Tips */}
-        <Card className="mt-6 p-6 bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800">
-          <h3 className="text-lg font-semibold text-indigo-900 dark:text-indigo-300 mb-3 flex items-center">
-            <span className="mr-2">💡</span>
-            Quick Tips
-          </h3>
-          <ul className="space-y-2 text-sm text-indigo-800 dark:text-indigo-300">
-            <li className="flex items-start">
-              <span className="mr-2">•</span>
-              <span>Add detailed notes in the description to remember key points about the candidate</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">•</span>
-              <span>Set the interview date to get reminders and keep track of your schedule</span>
-            </li>
-            <li className="flex items-start">
-              <span className="mr-2">•</span>
-              <span>You can add interview notes and feedback after creating the candidate</span>
-            </li>
-          </ul>
-        </Card>
-      </div>
-    </div>
+        <Paper
+          sx={{
+            p: 3,
+            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)',
+            border: '1px solid',
+            borderColor: 'primary.main',
+          }}
+        >
+          <Box display="flex" alignItems="center" gap={1} mb={2}>
+            <TipsAndUpdates color="primary" />
+            <Typography variant="h6" fontWeight={600} color="primary">
+              Quick Tips
+            </Typography>
+          </Box>
+          <Box component="ul" sx={{ pl: 3, m: 0 }}>
+            <Typography component="li" variant="body2" color="text.secondary" mb={1}>
+              Add detailed notes in the description to remember key points about the candidate
+            </Typography>
+            <Typography component="li" variant="body2" color="text.secondary" mb={1}>
+              Set the interview date to get reminders and keep track of your schedule
+            </Typography>
+            <Typography component="li" variant="body2" color="text.secondary">
+              You can add interview notes and feedback after creating the candidate
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }

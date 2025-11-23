@@ -35,3 +35,16 @@ export interface TaskListResponse {
   page: number;
   limit: number;
 }
+
+export interface TaskLog {
+  id: number;
+  task_id: number;
+  user_id: number;
+  user_name?: string;
+  action: string;
+  details?: string;
+  field_name?: string;
+  old_value?: string;
+  new_value?: string;
+  created_at: string;
+}

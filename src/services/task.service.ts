@@ -6,6 +6,7 @@ import type {
   CreateTaskInput,
   UpdateTaskInput,
   PaginationParams,
+  TaskLog,
 } from '@/types';
 
 export const taskService = {
@@ -50,7 +51,7 @@ export const taskService = {
   },
 
   // Get task change logs
-  async getLogs(id: number): Promise<any[]> {
-    return apiClient.get<any[]>(`/api/tasks/${id}/logs`);
+  async getLogs(id: number): Promise<TaskLog[]> {
+    return apiClient.get<TaskLog[]>(`/api/tasks/${id}/logs`);
   },
 };
